@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PixGraph — Innovative Design Solutions</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;0,800;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy:        #273268;
+    --navy-dark:   #1b2350;
+    --navy-light:  #3a4a90;
+    --teal:        #00AC8D;
+    --teal-light:  #00c9a7;
+    --teal-dim:    #008f76;
+    --bg:          #f5f7fc;
+    --surface:     #ffffff;
+    --text:        #1b2350;
+    --muted:       #7580a8;
+    --border:      rgba(39,50,104,0.09);
+    --white:       #ffffff;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Poppins', sans-serif;
+    font-weight: 300;
+    overflow-x: hidden;
+    cursor: none;
+  }
+
+  /* ── CURSOR ── */
+  .cursor { position: fixed; width: 10px; height: 10px; background: var(--teal); border-radius: 50%; pointer-events: none; z-index: 9999; transform: translate(-50%,-50%); transition: width .3s, height .3s; }
+  .cursor-ring { position: fixed; width: 36px; height: 36px; border: 1.5px solid var(--navy); border-radius: 50%; pointer-events: none; z-index: 9998; transform: translate(-50%,-50%); transition: transform .15s ease-out, width .3s, height .3s, opacity .3s; opacity: .35; }
+  body:has(a:hover) .cursor-ring, body:has(button:hover) .cursor-ring { width: 54px; height: 54px; opacity: .7; }
+
+  /* ── BG PATTERN ── */
+  body::before { content: ''; position: fixed; inset: 0; background-image: radial-gradient(circle, rgba(39,50,104,0.04) 1px, transparent 1px); background-size: 30px 30px; pointer-events: none; z-index: 0; }
+
+  /* ══════════════════════════════
+     NAV
+  ══════════════════════════════ */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 16px 56px;
+    background: rgba(255,255,255,0.92);
+    backdrop-filter: blur(18px);
+    border-bottom: 1px solid var(--border);
+    transition: box-shadow .3s;
+  }
+  nav.scrolled { box-shadow: 0 4px 28px rgba(39,50,104,0.09); }
+
+  .nav-logo { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+  .nav-logo-svg { height: 42px; width: auto; }
+
+  .nav-links { display: flex; gap: 32px; list-style: none; }
+  .nav-links a { color: var(--muted); text-decoration: none; font-size: 13px; font-weight: 500; letter-spacing: 0.5px; transition: color .3s; }
+  .nav-links a:hover { color: var(--navy); }
+  .nav-cta {
+    background: var(--navy) !important; color: var(--white) !important;
+    padding: 10px 26px; border-radius: 4px;
+    font-size: 13px; font-weight: 600 !important;
+    transition: background .3s !important; letter-spacing: 0.3px;
+  }
+  .nav-cta:hover { background: var(--navy-light) !important; }
+  .menu-toggle { display: none; background: none; border: 1.5px solid var(--border); color: var(--navy); padding: 8px 16px; font-family: 'Poppins', sans-serif; font-size: 12px; font-weight: 500; cursor: pointer; border-radius: 4px; }
+
+  /* ══════════════════════════════
+     HERO
+  ══════════════════════════════ */
+  .hero { min-height: 100vh; display: grid; grid-template-columns: 1fr 1fr; position: relative; overflow: hidden; }
+  .hero-left {
+    display: flex; flex-direction: column; justify-content: center;
+    padding: 130px 52px 80px 80px;
+    background: var(--white); position: relative; z-index: 2;
+  }
+  /* subtle left accent stripe */
+  .hero-left::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: linear-gradient(to bottom, var(--teal), var(--navy)); }
+
+  .hero-eyebrow {
+    display: flex; align-items: center; gap: 10px;
+    font-size: 11px; font-weight: 600; letter-spacing: 3px; text-transform: uppercase;
+    color: var(--teal); margin-bottom: 24px;
+  }
+  .hero-eyebrow::before { content: ''; width: 32px; height: 2px; background: var(--teal); }
+
+  .hero h1 {
+    font-size: clamp(42px, 5.5vw, 72px);
+    font-weight: 700; line-height: 1.1;
+    color: var(--navy); margin-bottom: 10px; letter-spacing: -0.5px;
+  }
+  .hero h1 .brand { color: var(--teal); }
+  .hero-tagline {
+    font-size: clamp(13px, 1.4vw, 17px);
+    font-weight: 600; letter-spacing: 3px; text-transform: uppercase;
+    color: var(--muted); margin-bottom: 28px;
+  }
+  .hero-desc { font-size: 15px; line-height: 1.85; color: var(--muted); max-width: 440px; margin-bottom: 48px; font-weight: 300; }
+
+  .hero-btns { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
+  .btn-primary {
+    background: var(--navy); color: var(--white);
+    padding: 14px 34px; border-radius: 4px;
+    font-family: 'Poppins', sans-serif; font-size: 13px; font-weight: 600;
+    letter-spacing: 0.5px; cursor: none; text-decoration: none; display: inline-block;
+    transition: all .3s; border: 2px solid var(--navy);
+  }
+  .btn-primary:hover { background: var(--navy-light); border-color: var(--navy-light); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(39,50,104,0.2); }
+  .btn-outline {
+    background: transparent; color: var(--navy);
+    padding: 14px 34px; border-radius: 4px;
+    border: 2px solid var(--navy);
+    font-family: 'Poppins', sans-serif; font-size: 13px; font-weight: 600;
+    letter-spacing: 0.5px; text-decoration: none; display: inline-block;
+    transition: all .3s; cursor: none;
+  }
+  .btn-outline:hover { background: var(--navy); color: var(--white); transform: translateY(-2px); }
+
+  /* Hero Right — navy panel */
+  .hero-right { position: relative; overflow: hidden; }
+  .hero-visual {
+    position: absolute; inset: 0;
+    background: var(--navy-dark);
+    display: flex; align-items: center; justify-content: center; overflow: hidden;
+  }
+  .hero-visual::before {
+    content: ''; position: absolute; inset: 0;
+    background-image: radial-gradient(circle, rgba(0,172,141,0.12) 1px, transparent 1px);
+    background-size: 38px 38px;
+  }
+  /* animated rings */
+  .hero-ring {
+    width: 360px; height: 360px;
+    border: 1px solid rgba(0,172,141,0.22);
+    border-radius: 50%; position: absolute;
+    animation: spin 24s linear infinite;
+  }
+  .hero-ring::before {
+    content: ''; position: absolute; top: -4px; left: 50%;
+    width: 8px; height: 8px;
+    background: var(--teal); border-radius: 50%;
+    transform: translateX(-50%);
+    box-shadow: 0 0 14px var(--teal), 0 0 28px rgba(0,172,141,0.4);
+  }
+  .hero-ring:nth-child(2) { width: 240px; height: 240px; animation-direction: reverse; animation-duration: 18s; border-color: rgba(255,255,255,0.06); }
+  .hero-ring:nth-child(2)::before { background: rgba(255,255,255,.5); box-shadow: 0 0 8px rgba(255,255,255,.4); }
+  .hero-ring:nth-child(3) { width: 490px; height: 490px; animation-duration: 36s; border-color: rgba(0,172,141,0.07); }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Large watermark logo in hero panel */
+  .hero-watermark {
+    position: relative; z-index: 2; opacity: 0.08; width: 75%;
+  }
+
+  /* Stats bar at bottom of hero panel */
+  .hero-stats { position: absolute; bottom: 44px; left: 0; right: 0; display: flex; justify-content: center; gap: 48px; }
+  .stat-num { font-size: 46px; font-weight: 700; color: var(--teal); line-height: 1; }
+  .stat-label { font-size: 10px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,.35); margin-top: 4px; }
+
+  /* ══════════════════════════════
+     MARQUEE
+  ══════════════════════════════ */
+  .marquee-wrap { background: var(--navy); padding: 15px 0; overflow: hidden; border-top: 3px solid var(--teal); }
+  .marquee-track { display: flex; animation: marquee 26s linear infinite; width: max-content; }
+  .marquee-item { font-size: 12px; font-weight: 600; letter-spacing: 3px; text-transform: uppercase; color: rgba(255,255,255,.4); padding: 0 36px; white-space: nowrap; display: flex; align-items: center; gap: 14px; }
+  .marquee-item .dot { width: 5px; height: 5px; background: var(--teal); border-radius: 50%; flex-shrink: 0; }
+  @keyframes marquee { to { transform: translateX(-50%); } }
+
+  /* ══════════════════════════════
+     SECTIONS COMMON
+  ══════════════════════════════ */
+  section { padding: 110px 80px; position: relative; z-index: 1; }
+  .section-label {
+    font-size: 11px; font-weight: 600; letter-spacing: 3px; text-transform: uppercase;
+    color: var(--teal); margin-bottom: 12px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .section-label::before { content: ''; width: 26px; height: 2px; background: var(--teal); }
+  h2 { font-size: clamp(34px, 4vw, 52px); font-weight: 700; color: var(--navy); line-height: 1.1; letter-spacing: -0.5px; }
+  h2 .accent { color: var(--teal); }
+
+  /* ══════════════════════════════
+     SERVICES
+  ══════════════════════════════ */
+  .services { background: var(--white); }
+  .services-header { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: end; margin-bottom: 64px; }
+  .services-sub { color: var(--muted); line-height: 1.85; font-size: 15px; font-weight: 300; }
+  .services-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); }
+  .service-card { background: var(--white); padding: 44px 28px; position: relative; overflow: hidden; transition: background .3s; cursor: none; }
+  .service-card::after { content: ''; position: absolute; bottom: 0; left: 0; width: 0; height: 3px; background: var(--teal); transition: width .4s; }
+  .service-card:hover { background: var(--bg); }
+  .service-card:hover::after { width: 100%; }
+  .svc-num { font-size: 48px; font-weight: 800; color: rgba(39,50,104,0.04); line-height: 1; margin-bottom: -8px; }
+  .svc-icon { width: 42px; height: 42px; margin-bottom: 20px; color: var(--teal); }
+  .svc-title { font-size: 16px; font-weight: 600; color: var(--navy); margin-bottom: 10px; }
+  .svc-desc { font-size: 13px; color: var(--muted); line-height: 1.8; font-weight: 300; }
+
+  /* ══════════════════════════════
+     ABOUT
+  ══════════════════════════════ */
+  .about-strip { display: grid; grid-template-columns: 1fr 1fr; padding: 0; }
+  .about-left { padding: 96px 80px; background: var(--bg); border-right: 1px solid var(--border); }
+  .about-right { background: var(--navy); padding: 96px 80px; position: relative; overflow: hidden; }
+  .about-right::after { content: 'PixGraph'; position: absolute; font-size: 120px; font-weight: 800; color: rgba(255,255,255,0.025); bottom: -20px; right: -10px; letter-spacing: 2px; white-space: nowrap; pointer-events: none; }
+  .about-list { list-style: none; margin-top: 36px; }
+  .about-list li { padding: 16px 0; border-bottom: 1px solid var(--border); color: var(--muted); font-size: 14px; font-weight: 300; display: flex; align-items: center; gap: 12px; transition: color .3s; }
+  .about-list li:hover { color: var(--navy); }
+  .about-list li::before { content: ''; width: 6px; height: 6px; background: var(--teal); border-radius: 50%; flex-shrink: 0; }
+  .about-right h3 { font-size: 34px; font-weight: 700; color: var(--white); line-height: 1.15; margin-bottom: 18px; position: relative; }
+  .about-right > p { color: rgba(255,255,255,.5); line-height: 1.85; font-size: 14px; font-weight: 300; position: relative; }
+  .about-vals { margin-top: 36px; display: grid; grid-template-columns: 1fr 1fr; gap: 14px; position: relative; }
+  .about-val { background: rgba(255,255,255,0.06); padding: 20px; border-left: 3px solid var(--teal); border-radius: 0 4px 4px 0; }
+  .about-val-title { font-size: 13px; font-weight: 600; color: var(--white); margin-bottom: 4px; }
+  .about-val-text { font-size: 12px; color: rgba(255,255,255,.4); line-height: 1.6; font-weight: 300; }
+
+  /* ══════════════════════════════
+     PRODUCTS / COMING SOON
+  ══════════════════════════════ */
+  .products { background: var(--bg); }
+  .products-header { text-align: center; margin-bottom: 64px; }
+  .products-header .section-label { justify-content: center; }
+  .products-header .section-label::before { display: none; }
+  .products-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 2px; background: var(--border); border: 1px solid var(--border); }
+  .product-card { background: var(--white); padding: 52px 36px; position: relative; overflow: hidden; cursor: none; transition: background .3s; }
+  .product-card:hover { background: #eef1fb; }
+  .coming-badge { position: absolute; top: 22px; right: 22px; background: var(--teal); color: var(--white); font-size: 9px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; padding: 4px 12px; border-radius: 2px; }
+  .product-icon { font-size: 40px; margin-bottom: 20px; }
+  .product-title { font-size: 20px; font-weight: 700; color: var(--navy); margin-bottom: 10px; }
+  .product-desc { font-size: 13px; color: var(--muted); line-height: 1.8; margin-bottom: 22px; font-weight: 300; }
+  .product-items { list-style: none; }
+  .product-items li { font-size: 13px; color: var(--muted); padding: 7px 0; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; font-weight: 300; }
+  .product-items li::before { content: ''; width: 5px; height: 5px; background: var(--teal); border-radius: 50%; flex-shrink: 0; }
+
+  /* ══════════════════════════════
+     RESOURCES
+  ══════════════════════════════ */
+  .resources { background: var(--navy); }
+  .resources .section-label { color: var(--teal-light); }
+  .resources .section-label::before { background: var(--teal-light); }
+  .resources h2 { color: var(--white); }
+  .resources h2 .accent { color: var(--teal-light); }
+  .resources-inner { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center; }
+  .res-intro { color: rgba(255,255,255,.5); margin-top: 18px; line-height: 1.85; font-size: 14px; font-weight: 300; }
+  .resources-cards { display: grid; gap: 10px; }
+  .res-card { background: rgba(255,255,255,.05); padding: 20px 24px; display: flex; align-items: center; gap: 18px; border-left: 3px solid transparent; transition: border-color .3s, background .3s; cursor: none; border-radius: 0 4px 4px 0; }
+  .res-card:hover { border-left-color: var(--teal); background: rgba(0,172,141,.07); }
+  .res-icon { font-size: 26px; flex-shrink: 0; }
+  .res-title { font-size: 14px; font-weight: 600; color: var(--white); margin-bottom: 2px; }
+  .res-desc { font-size: 12px; color: rgba(255,255,255,.4); font-weight: 300; }
+  .res-badge { margin-left: auto; flex-shrink: 0; font-size: 10px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; padding: 4px 11px; border: 1px solid; border-radius: 2px; }
+  .res-badge.free { color: var(--teal); border-color: var(--teal); }
+  .res-badge.premium { color: #f0c060; border-color: #f0c060; }
+
+  /* ══════════════════════════════
+     CTA BANNER
+  ══════════════════════════════ */
+  .cta-banner { padding: 80px; background: var(--bg); }
+  .cta-inner {
+    background: var(--teal);
+    padding: 72px 80px;
+    display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 60px;
+    border-radius: 8px; position: relative; overflow: hidden;
+  }
+  .cta-inner::before { content: 'PixGraph'; position: absolute; font-size: 200px; font-weight: 800; color: rgba(0,0,0,0.05); right: -20px; bottom: -40px; letter-spacing: 2px; pointer-events: none; white-space: nowrap; }
+  .cta-title { font-size: 42px; font-weight: 700; color: var(--white); line-height: 1.15; letter-spacing: -0.5px; }
+  .cta-sub { color: rgba(255,255,255,.75); font-size: 15px; margin-top: 8px; font-weight: 300; }
+  .btn-white { background: var(--white); color: var(--navy); padding: 16px 36px; border-radius: 4px; font-family: 'Poppins', sans-serif; font-size: 13px; font-weight: 700; letter-spacing: 0.3px; text-decoration: none; white-space: nowrap; display: inline-block; transition: all .3s; flex-shrink: 0; }
+  .btn-white:hover { background: var(--bg); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.12); }
+
+  /* ══════════════════════════════
+     FOOTER
+  ══════════════════════════════ */
+  footer { background: var(--navy-dark); padding: 72px 80px 36px; }
+  .footer-top { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 60px; margin-bottom: 56px; }
+  .footer-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; margin-bottom: 16px; }
+  .footer-logo-svg { height: 36px; width: auto; }
+  .footer-brand p { color: rgba(255,255,255,.35); font-size: 13px; line-height: 1.8; max-width: 240px; font-weight: 300; }
+  .footer-tagline { font-size: 11px; font-weight: 700; letter-spacing: 2.5px; text-transform: uppercase; color: var(--teal); margin-top: 16px; }
+  .footer-col h4 { font-size: 11px; font-weight: 700; letter-spacing: 2.5px; text-transform: uppercase; color: var(--teal); margin-bottom: 22px; }
+  .footer-col ul { list-style: none; }
+  .footer-col ul li { margin-bottom: 11px; }
+  .footer-col ul li a { color: rgba(255,255,255,.4); text-decoration: none; font-size: 13px; font-weight: 300; transition: color .3s; }
+  .footer-col ul li a:hover { color: var(--teal); }
+  .footer-bottom { padding-top: 28px; border-top: 1px solid rgba(255,255,255,.06); display: flex; justify-content: space-between; align-items: center; }
+  .footer-copy { font-size: 12px; color: rgba(255,255,255,.25); font-weight: 300; }
+  .social-links { display: flex; gap: 10px; }
+  .social-links a {
+    width: 38px; height: 38px; border: 1px solid rgba(255,255,255,.12);
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 6px; transition: all .3s; text-decoration: none;
+  }
+  .social-links a:hover { border-color: var(--teal); background: rgba(0,172,141,0.1); }
+  .social-links svg { width: 16px; height: 16px; fill: rgba(255,255,255,.45); transition: fill .3s; }
+  .social-links a:hover svg { fill: var(--teal); }
+
+  /* ── REVEAL ── */
+  .reveal { opacity: 0; transform: translateY(24px); transition: opacity .7s ease, transform .7s ease; }
+  .reveal.visible { opacity: 1; transform: none; }
+  .reveal-delay-1 { transition-delay: .1s; }
+  .reveal-delay-2 { transition-delay: .2s; }
+  .reveal-delay-3 { transition-delay: .3s; }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 1100px) {
+    nav { padding: 16px 24px; }
+    .nav-links { display: none; }
+    .menu-toggle { display: block; }
+    .hero { grid-template-columns: 1fr; min-height: auto; }
+    .hero-left { padding: 110px 24px 60px; }
+    .hero-left::before { display: none; }
+    .hero-right { height: 280px; }
+    .hero-stats { gap: 24px; bottom: 18px; }
+    .stat-num { font-size: 34px; }
+    section { padding: 72px 24px; }
+    .services-header { grid-template-columns: 1fr; gap: 20px; }
+    .services-grid { grid-template-columns: repeat(2,1fr); }
+    .about-strip { grid-template-columns: 1fr; }
+    .about-left, .about-right { padding: 56px 24px; }
+    .products-grid { grid-template-columns: 1fr; }
+    .resources-inner { grid-template-columns: 1fr; gap: 40px; }
+    .cta-banner { padding: 40px 24px; }
+    .cta-inner { padding: 44px 32px; grid-template-columns: 1fr; gap: 24px; }
+    .cta-title { font-size: 30px; }
+    .footer-top { grid-template-columns: 1fr 1fr; gap: 40px; }
+    footer { padding: 56px 24px 32px; }
+    .footer-bottom { flex-direction: column; gap: 20px; text-align: center; }
+    body { cursor: auto; }
+    .cursor, .cursor-ring { display: none; }
+  }
+  @media (max-width: 640px) {
+    .services-grid, .footer-top { grid-template-columns: 1fr; }
+    .about-vals { grid-template-columns: 1fr; }
+    .hero-stats { gap: 18px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- ══ NAV ══ -->
+<nav id="mainNav">
+  <a href="#" class="nav-logo">
+    <!-- Exact PixGraph logo SVG, scaled to nav height -->
+    <svg class="nav-logo-svg" viewBox="365 480 650 170" xmlns="http://www.w3.org/2000/svg">
+      <style>.st0{fill:#00AC8D;}.st1{fill:#273268;}</style>
+      <path class="st0" d="M437.26,548.82c-2.63,4.87-6.76,8.79-12.37,11.77c-5.62,2.98-12.7,4.47-21.24,4.47H386.2v39.96h-20.87V500.97h38.31c8.05,0,14.91,1.39,20.57,4.17c5.66,2.78,9.91,6.61,12.74,11.48c2.83,4.87,4.25,10.39,4.25,16.55C441.21,538.74,439.89,543.95,437.26,548.82z M415.57,544.27c2.78-2.62,4.17-6.33,4.17-11.1c0-10.14-5.66-15.2-16.99-15.2H386.2v30.26h16.55C408.51,548.23,412.79,546.91,415.57,544.27z"/>
+      <path class="st0" d="M455,509.09c-2.44-2.34-3.65-5.23-3.65-8.72c0-3.48,1.22-6.39,3.65-8.73c2.43-2.34,5.49-3.5,9.17-3.5c3.68,0,6.73,1.17,9.17,3.5c2.44,2.34,3.65,5.24,3.65,8.73c0,3.48-1.22,6.38-3.65,8.72c-2.44,2.34-5.49,3.5-9.17,3.5C460.49,512.59,457.43,511.43,455,509.09z M474.45,522.43v82.59h-20.87v-82.59H474.45z"/>
+      <path class="st0" d="M539.83,605.02l-17-25.64l-15.05,25.64h-22.36l26.98-41.44l-27.28-41.15h23.55l16.85,25.5l15.21-25.5h22.36l-27.13,41.15l27.43,41.44H539.83z"/>
+      <path class="st0" d="M642.27,532.28c-2.39-4.37-5.66-7.7-9.84-9.99c-4.17-2.28-9.04-3.43-14.61-3.43c-6.17,0-11.63,1.39-16.4,4.17c-4.77,2.79-8.5,6.76-11.18,11.93c-2.69,5.17-4.03,11.12-4.03,17.89c0,6.95,1.37,13.03,4.1,18.18c2.73,5.17,6.53,9.15,11.4,11.93c4.87,2.78,10.54,4.17,17,4.17c7.95,0,14.46-2.11,19.53-6.34c5.07-4.22,8.4-10.12,9.99-17.66h-35.77v-15.95h56.35v18.19c-1.39,7.25-4.37,13.96-8.94,20.12c-4.58,6.17-10.46,11.11-17.66,14.84c-7.21,3.73-15.28,5.58-24.22,5.58c-10.04,0-19.11-2.26-27.21-6.78s-14.46-10.81-19.08-18.85c-4.62-8.05-6.93-17.2-6.93-27.43c0-10.23,2.31-19.4,6.93-27.5c4.62-8.1,10.98-14.41,19.08-18.93s17.12-6.78,27.06-6.78c11.72,0,21.91,2.86,30.56,8.57c8.65,5.72,14.61,13.74,17.89,24.08H642.27z"/>
+      <path class="st0" d="M709.55,524.97c4.33-2.48,9.27-3.73,14.84-3.73v21.91h-5.52c-6.55,0-11.5,1.54-14.83,4.62c-3.33,3.09-4.99,8.45-4.99,16.1v41.15h-20.87v-82.59h20.87v12.82C701.73,530.88,705.23,527.46,709.55,524.97z"/>
+      <path class="st0" d="M735.33,541.22c3.33-6.46,7.85-11.43,13.57-14.91c5.71-3.47,12.1-5.21,19.16-5.21c6.16,0,11.55,1.24,16.17,3.73c4.62,2.48,8.32,5.62,11.1,9.39v-11.78h21.02v82.59h-21.02v-12.07c-2.68,3.87-6.39,7.08-11.1,9.61c-4.72,2.54-10.16,3.8-16.32,3.8c-6.96,0-13.3-1.78-19.01-5.36c-5.72-3.58-10.24-8.62-13.57-15.14c-3.33-6.51-4.99-13.98-4.99-22.43C730.34,555.09,732,547.68,735.33,541.22z M792.35,550.68c-1.99-3.62-4.68-6.41-8.05-8.34c-3.38-1.94-7.01-2.91-10.88-2.91c-3.88,0-7.46,0.94-10.73,2.83c-3.28,1.89-5.94,4.65-7.98,8.27c-2.04,3.63-3.06,7.93-3.06,12.9c0,4.97,1.02,9.32,3.06,13.05c2.03,3.73,4.72,6.58,8.05,8.57c3.33,2,6.88,2.98,10.66,2.98c3.87,0,7.5-0.97,10.88-2.91c3.38-1.93,6.06-4.71,8.05-8.34c1.99-3.63,2.98-7.97,2.98-13.05C795.33,558.66,794.34,554.31,792.35,550.68z"/>
+      <path class="st0" d="M859.64,524.9c4.72-2.54,10.11-3.8,16.18-3.8c7.05,0,13.44,1.74,19.16,5.21c5.71,3.48,10.23,8.43,13.57,14.84c3.33,6.4,4.99,13.83,4.99,22.28c0,8.45-1.67,15.92-4.99,22.43c-3.33,6.52-7.86,11.56-13.57,15.14c-5.72,3.58-12.1,5.36-19.16,5.36c-6.07,0-11.41-1.24-16.03-3.73c-4.62-2.48-8.37-5.6-11.25-9.38v51.12h-20.87V522.43h20.87v11.93C851.22,530.59,854.92,527.43,859.64,524.9z M889.16,550.53c-2.04-3.62-4.72-6.38-8.05-8.27c-3.33-1.89-6.93-2.83-10.81-2.83c-3.78,0-7.33,0.97-10.66,2.91c-3.33,1.93-6.01,4.75-8.05,8.42c-2.04,3.68-3.06,8-3.06,12.97c0,4.97,1.02,9.3,3.06,12.97c2.03,3.67,4.72,6.49,8.05,8.42c3.33,1.94,6.88,2.91,10.66,2.91c3.87,0,7.47-0.99,10.81-2.98c3.33-1.99,6.01-4.82,8.05-8.49s3.06-8.06,3.06-13.12C892.21,558.46,891.19,554.16,889.16,550.53z"/>
+      <path class="st0" d="M984.5,525.34c4.87,2.74,8.67,6.76,11.41,12.07c2.73,5.32,4.1,11.71,4.1,19.16v48.45h-20.87v-45.61c0-6.56-1.64-11.6-4.91-15.14c-3.28-3.52-7.75-5.29-13.42-5.29c-5.76,0-10.31,1.76-13.64,5.29c-3.33,3.53-4.99,8.58-4.99,15.14v45.61h-20.87V494.71h20.87v38.01c2.69-3.58,6.26-6.38,10.73-8.42c4.47-2.04,9.44-3.06,14.91-3.06C974.06,521.25,979.63,522.62,984.5,525.34z"/>
+    </svg>
+  </a>
+  <ul class="nav-links">
+    <li><a href="#services">Services</a></li>
+    <li><a href="#about">About</a></li>
+    <li><a href="#products">Shop</a></li>
+    <li><a href="#resources">Resources</a></li>
+    <li><a href="#contact" class="nav-cta">Get a Quote</a></li>
+  </ul>
+  <button class="menu-toggle">☰ Menu</button>
+</nav>
+
+<!-- ══ HERO ══ -->
+<section class="hero">
+  <div class="hero-left">
+    <div class="hero-eyebrow">Branding Studio — Est. 2018</div>
+    <h1>We Build <span class="brand">Brands</span><br>That Matter</h1>
+    <div class="hero-tagline">Innovative Design Solutions</div>
+    <p class="hero-desc">From brand identity to motion graphics, print to pixels — we craft visual stories that leave a lasting impression on your audience and drive real results.</p>
+    <div class="hero-btns">
+      <a href="#services" class="btn-primary">Explore Services</a>
+      <a href="#about" class="btn-outline">Our Story</a>
+    </div>
+  </div>
+  <div class="hero-right">
+    <div class="hero-visual">
+      <div class="hero-ring"></div>
+      <div class="hero-ring"></div>
+      <div class="hero-ring"></div>
+      <!-- Watermark: icon mark from logo (the PC square + leaf) -->
+      <svg class="hero-watermark" viewBox="520 110 330 340" xmlns="http://www.w3.org/2000/svg">
+        <style>.st0{fill:#00AC8D;}.st1{fill:#273268;}</style>
+        <path class="st1" d="M615.16,353.76c-23.69,0-46.24,0-69.79,0c0,2.88-0.19,59.4,0.13,85.12c0.08,6.31-1.83,8.21-8.11,8.1c-16.31-0.27-16.32,0.01-16.32-16.22c0-99.09,0-198.18,0-297.27c0-9.68,0.01-9.71,9.24-9.71c70.27-0.01,140.54,0.07,210.81-0.15c6.88-0.02,9.01,2,8.91,8.91c-0.36,25.96,0,51.93-0.28,77.89c-0.06,5.8,1.42,7.82,7.51,7.74c25.96-0.31,51.93,0.05,77.89-0.25c6.59-0.08,9.25,1.5,9.13,8.7c-0.41,24.29-0.32,48.59-0.05,72.89c0.07,6.17-1.89,8.49-8.18,8.37c-19.22-0.37-16.24,1.5-16.4-16.43c-0.13-14.29-0.17-28.59,0.05-42.87c0.07-4.67-1.57-6.22-6.21-6.18c-19.29,0.19-38.59,0.18-57.88,0.03c-4.33-0.03-5.81,1.47-5.8,5.81c0.15,50.29-37.65,95.4-89.13,103.39c-6.75,1.05-13.61,1.45-20.6,2.17c-0.21,1.87-0.51,46.54-0.51,68.11c59.89,0,119.29,0,179.64,0c0.13-2.25,0.4-4.74,0.4-7.24c0.04-16.44,0.18-32.87-0.06-49.31c-0.08-5.45,1.52-7.53,7.32-7.52c17.25,0.02,17.25-0.22,17.25,16.76c0,21.44-0.14,42.87,0.1,64.31c0.06,5.58-1.19,8.05-7.47,8.03c-71.46-0.19-142.92-0.19-214.38-0.01c-5.83,0.01-7.33-2.02-7.29-7.44C615.27,414.02,615.16,357.42,615.16,353.76z M545.75,328.31c22.28,0,43.7-0.04,65.11,0.03c4.94,0.02,4.18-3.33,4.27-6.39c1.69-57.43,46.45-102.43,103.53-103.79c5.35-0.13,6.96-1.66,6.88-6.95c-0.28-17.86-0.44-35.74,0.06-53.59c0.2-7.12-1.63-9.32-9.04-9.28c-54.31,0.32-108.62,0.16-162.93,0.19c-2.55,0-5.1,0.27-7.88,0.43C545.75,208.84,545.75,268.05,545.75,328.31z M648.6,328.08c39.97-1,76.2-37.97,76.52-77.97c0.04-4.98-1.41-7.34-6.98-7.17c-41.25,1.19-76.15,35.13-78.14,76.24C639.59,327.43,640.42,328.28,648.6,328.08z"/>
+        <path class="st0" d="M648.6,328.08c-8.18,0.2-9.01-0.65-8.61-8.9c1.99-41.11,36.89-75.05,78.14-76.24c5.57-0.16,7.02,2.2,6.98,7.17C724.8,290.11,688.57,327.08,648.6,328.08z"/>
+      </svg>
+    </div>
+    <div class="hero-stats">
+      <div class="stat"><div class="stat-num">200+</div><div class="stat-label">Projects Done</div></div>
+      <div class="stat"><div class="stat-num">80+</div><div class="stat-label">Happy Clients</div></div>
+      <div class="stat"><div class="stat-num">6+</div><div class="stat-label">Years Active</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ MARQUEE ══ -->
+<div class="marquee-wrap">
+  <div class="marquee-track">
+    <div class="marquee-item"><span class="dot"></span>Logo Design</div>
+    <div class="marquee-item"><span class="dot"></span>Brand Identity</div>
+    <div class="marquee-item"><span class="dot"></span>Motion Graphics</div>
+    <div class="marquee-item"><span class="dot"></span>Social Media Graphics</div>
+    <div class="marquee-item"><span class="dot"></span>Press Printing</div>
+    <div class="marquee-item"><span class="dot"></span>Online Courses</div>
+    <div class="marquee-item"><span class="dot"></span>Custom Merchandise</div>
+    <div class="marquee-item"><span class="dot"></span>Calligraphy Frames</div>
+    <div class="marquee-item"><span class="dot"></span>Innovative Design Solutions</div>
+    <div class="marquee-item"><span class="dot"></span>Logo Design</div>
+    <div class="marquee-item"><span class="dot"></span>Brand Identity</div>
+    <div class="marquee-item"><span class="dot"></span>Motion Graphics</div>
+    <div class="marquee-item"><span class="dot"></span>Social Media Graphics</div>
+    <div class="marquee-item"><span class="dot"></span>Press Printing</div>
+    <div class="marquee-item"><span class="dot"></span>Online Courses</div>
+    <div class="marquee-item"><span class="dot"></span>Custom Merchandise</div>
+    <div class="marquee-item"><span class="dot"></span>Calligraphy Frames</div>
+    <div class="marquee-item"><span class="dot"></span>Innovative Design Solutions</div>
+  </div>
+</div>
+
+<!-- ══ SERVICES ══ -->
+<section class="services" id="services">
+  <div class="services-header">
+    <div>
+      <div class="section-label">What We Do</div>
+      <h2>Core <span class="accent">Services</span></h2>
+    </div>
+    <p class="services-sub">We are a full-spectrum branding studio delivering creative experiences across every touchpoint — digital, print, and motion.</p>
+  </div>
+  <div class="services-grid">
+    <div class="service-card reveal">
+      <div class="svc-num">01</div>
+      <svg class="svc-icon" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.5">
+        <circle cx="24" cy="24" r="18"/><path d="M24 6v36M6 24h36M10.1 10.1l27.8 27.8M37.9 10.1L10.1 37.9"/>
+      </svg>
+      <div class="svc-title">Logo & Brand Identity</div>
+      <p class="svc-desc">Complete brand systems — logo, colour palette, typography & guidelines — that define who you are and how the world sees you.</p>
+    </div>
+    <div class="service-card reveal reveal-delay-1">
+      <div class="svc-num">02</div>
+      <svg class="svc-icon" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.5">
+        <rect x="4" y="8" width="40" height="32" rx="4"/><path d="M4 16h40"/><circle cx="34" cy="28" r="5"/>
+      </svg>
+      <div class="svc-title">Social Media Graphics</div>
+      <p class="svc-desc">Scroll-stopping visuals for Instagram, Facebook, LinkedIn and more. Consistent, on-brand content that grows your presence.</p>
+    </div>
+    <div class="service-card reveal reveal-delay-2">
+      <div class="svc-num">03</div>
+      <svg class="svc-icon" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M8 40l8-16 8 8 8-20 8 28"/><circle cx="8" cy="40" r="2" fill="currentColor"/><circle cx="40" cy="40" r="2" fill="currentColor"/>
+      </svg>
+      <div class="svc-title">Motion Graphics</div>
+      <p class="svc-desc">Animated logos, explainer videos, reels, and cinematic brand films. Motion that communicates your story with energy and impact.</p>
+    </div>
+    <div class="service-card reveal reveal-delay-3">
+      <div class="svc-num">04</div>
+      <svg class="svc-icon" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.5">
+        <rect x="6" y="10" width="36" height="28" rx="2"/><path d="M2 16h4M42 16h4M2 32h4M42 32h4M14 10V6M34 10V6"/>
+      </svg>
+      <div class="svc-title">Press Printing Solutions</div>
+      <p class="svc-desc">Business cards, brochures, banners, packaging — designed with precision and printed with uncompromising quality.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ══ ABOUT ══ -->
+<div class="about-strip" id="about">
+  <div class="about-left">
+    <div class="section-label">About PixGraph</div>
+    <h2>Design Is Our <span class="accent">Language</span></h2>
+    <ul class="about-list">
+      <li>Strategic visual thinking for every project</li>
+      <li>Detail-obsessed craftsmanship in every pixel</li>
+      <li>On-time delivery, every single time</li>
+      <li>Ongoing support beyond project completion</li>
+      <li>Transparent communication throughout</li>
+    </ul>
+  </div>
+  <div class="about-right">
+    <h3>Why Brands Choose PixGraph</h3>
+    <p>We don't just make things look good — we make them work. Every visual decision is backed by strategy, every design driven by your business goals. Since 2018, we've helped brands across the globe tell their story.</p>
+    <div class="about-vals">
+      <div class="about-val"><div class="about-val-title">Strategy First</div><div class="about-val-text">Every design decision starts with your business objectives.</div></div>
+      <div class="about-val"><div class="about-val-title">Creative Excellence</div><div class="about-val-text">Award-worthy design that stands out in any market.</div></div>
+      <div class="about-val"><div class="about-val-title">Fast Turnaround</div><div class="about-val-text">Efficient workflows without compromising on quality.</div></div>
+      <div class="about-val"><div class="about-val-title">Lifetime Partnership</div><div class="about-val-text">We grow with your brand for years to come.</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ COMING SOON PRODUCTS ══ -->
+<section class="products" id="products">
+  <div class="products-header">
+    <div class="section-label">Expanding Universe</div>
+    <h2>Coming <span class="accent">Soon</span></h2>
+    <p style="color:var(--muted);margin-top:14px;max-width:540px;margin-left:auto;margin-right:auto;line-height:1.85;font-size:14px;font-weight:300;">We're building something bigger. Courses, merchandise, and resources — all launching soon.</p>
+  </div>
+  <div class="products-grid">
+    <div class="product-card reveal">
+      <div class="coming-badge">Coming Soon</div>
+      <div class="product-icon">🎓</div>
+      <div class="product-title">Online Courses</div>
+      <p class="product-desc">Master graphic design and motion graphics with structured, industry-level courses taught by working professionals.</p>
+      <ul class="product-items">
+        <li>Graphic Design Fundamentals</li>
+        <li>Brand Identity Masterclass</li>
+        <li>Motion Graphics with After Effects</li>
+        <li>Social Media Design Pro</li>
+      </ul>
+    </div>
+    <div class="product-card reveal reveal-delay-1">
+      <div class="coming-badge">Coming Soon</div>
+      <div class="product-icon">🛍️</div>
+      <div class="product-title">Print Products</div>
+      <p class="product-desc">Custom-designed merchandise and print products, crafted with premium quality for businesses and individuals.</p>
+      <ul class="product-items">
+        <li>Business Cards & Stationery</li>
+        <li>Event T-Shirts & Hoodies</li>
+        <li>Custom Caps & Hats</li>
+        <li>Branded Packaging</li>
+      </ul>
+    </div>
+    <div class="product-card reveal reveal-delay-2">
+      <div class="coming-badge">Coming Soon</div>
+      <div class="product-icon">🖋️</div>
+      <div class="product-title">Calligraphy Art</div>
+      <p class="product-desc">Bespoke hand-lettered and digitally crafted calligraphy pieces, custom-framed and ready to adorn your space.</p>
+      <ul class="product-items">
+        <li>Quranic Verses & Duas</li>
+        <li>Motivational Wall Art</li>
+        <li>Name & Quote Frames</li>
+        <li>Custom Gift Pieces</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ══ RESOURCES ══ -->
+<section class="resources" id="resources">
+  <div class="resources-inner">
+    <div>
+      <div class="section-label">Resources</div>
+      <h2>Free & Premium <span class="accent">Assets</span></h2>
+      <p class="res-intro">Equip yourself with professional-grade design resources — free and premium — to accelerate your creative work.</p>
+      <a href="#" class="btn-primary" style="margin-top:36px;display:inline-block;background:var(--teal);border-color:var(--teal);">Browse All Resources</a>
+    </div>
+    <div class="resources-cards">
+      <div class="res-card"><div class="res-icon">🎨</div><div><div class="res-title">Brand Identity Starter Kit</div><div class="res-desc">Logo templates, colour palettes & font pairings</div></div><div class="res-badge free">Free</div></div>
+      <div class="res-card"><div class="res-icon">📱</div><div><div class="res-title">Social Media Template Pack</div><div class="res-desc">100+ editable Canva & Illustrator templates</div></div><div class="res-badge premium">Premium</div></div>
+      <div class="res-card"><div class="res-icon">🎬</div><div><div class="res-title">Motion Graphics Presets</div><div class="res-desc">After Effects presets for reels & intros</div></div><div class="res-badge free">Free</div></div>
+      <div class="res-card"><div class="res-icon">🖨️</div><div><div class="res-title">Print-Ready Design Guides</div><div class="res-desc">Bleed, crop, CMYK setup for professional printing</div></div><div class="res-badge free">Free</div></div>
+      <div class="res-card"><div class="res-icon">💎</div><div><div class="res-title">Pro Designer Bundle</div><div class="res-desc">500+ assets, mockups, icons & UI kits</div></div><div class="res-badge premium">Premium</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ CTA ══ -->
+<div class="cta-banner" id="contact">
+  <div class="cta-inner">
+    <div>
+      <div class="cta-title">Ready to Build Your Brand?</div>
+      <p class="cta-sub">Let's talk about your project — no commitment, just a conversation.</p>
+    </div>
+    <a href="https://www.facebook.com/pixgraphdesign/" target="_blank" class="btn-white">Start a Project</a>
+  </div>
+</div>
+
+<!-- ══ FOOTER ══ -->
+<footer>
+  <div class="footer-top">
+    <div class="footer-brand">
+      <a href="#" class="footer-logo">
+        <svg class="footer-logo-svg" viewBox="365 480 650 170" xmlns="http://www.w3.org/2000/svg">
+          <path style="fill:#00AC8D" d="M437.26,548.82c-2.63,4.87-6.76,8.79-12.37,11.77c-5.62,2.98-12.7,4.47-21.24,4.47H386.2v39.96h-20.87V500.97h38.31c8.05,0,14.91,1.39,20.57,4.17c5.66,2.78,9.91,6.61,12.74,11.48c2.83,4.87,4.25,10.39,4.25,16.55C441.21,538.74,439.89,543.95,437.26,548.82z M415.57,544.27c2.78-2.62,4.17-6.33,4.17-11.1c0-10.14-5.66-15.2-16.99-15.2H386.2v30.26h16.55C408.51,548.23,412.79,546.91,415.57,544.27z"/>
+          <path style="fill:#00AC8D" d="M455,509.09c-2.44-2.34-3.65-5.23-3.65-8.72c0-3.48,1.22-6.39,3.65-8.73c2.43-2.34,5.49-3.5,9.17-3.5c3.68,0,6.73,1.17,9.17,3.5c2.44,2.34,3.65,5.24,3.65,8.73c0,3.48-1.22,6.38-3.65,8.72c-2.44,2.34-5.49,3.5-9.17,3.5C460.49,512.59,457.43,511.43,455,509.09z M474.45,522.43v82.59h-20.87v-82.59H474.45z"/>
+          <path style="fill:#00AC8D" d="M539.83,605.02l-17-25.64l-15.05,25.64h-22.36l26.98-41.44l-27.28-41.15h23.55l16.85,25.5l15.21-25.5h22.36l-27.13,41.15l27.43,41.44H539.83z"/>
+          <path style="fill:#00AC8D" d="M642.27,532.28c-2.39-4.37-5.66-7.7-9.84-9.99c-4.17-2.28-9.04-3.43-14.61-3.43c-6.17,0-11.63,1.39-16.4,4.17c-4.77,2.79-8.5,6.76-11.18,11.93c-2.69,5.17-4.03,11.12-4.03,17.89c0,6.95,1.37,13.03,4.1,18.18c2.73,5.17,6.53,9.15,11.4,11.93c4.87,2.78,10.54,4.17,17,4.17c7.95,0,14.46-2.11,19.53-6.34c5.07-4.22,8.4-10.12,9.99-17.66h-35.77v-15.95h56.35v18.19c-1.39,7.25-4.37,13.96-8.94,20.12c-4.58,6.17-10.46,11.11-17.66,14.84c-7.21,3.73-15.28,5.58-24.22,5.58c-10.04,0-19.11-2.26-27.21-6.78s-14.46-10.81-19.08-18.85c-4.62-8.05-6.93-17.2-6.93-27.43c0-10.23,2.31-19.4,6.93-27.5c4.62-8.1,10.98-14.41,19.08-18.93s17.12-6.78,27.06-6.78c11.72,0,21.91,2.86,30.56,8.57c8.65,5.72,14.61,13.74,17.89,24.08H642.27z"/>
+          <path style="fill:#00AC8D" d="M709.55,524.97c4.33-2.48,9.27-3.73,14.84-3.73v21.91h-5.52c-6.55,0-11.5,1.54-14.83,4.62c-3.33,3.09-4.99,8.45-4.99,16.1v41.15h-20.87v-82.59h20.87v12.82C701.73,530.88,705.23,527.46,709.55,524.97z"/>
+          <path style="fill:#00AC8D" d="M735.33,541.22c3.33-6.46,7.85-11.43,13.57-14.91c5.71-3.47,12.1-5.21,19.16-5.21c6.16,0,11.55,1.24,16.17,3.73c4.62,2.48,8.32,5.62,11.1,9.39v-11.78h21.02v82.59h-21.02v-12.07c-2.68,3.87-6.39,7.08-11.1,9.61c-4.72,2.54-10.16,3.8-16.32,3.8c-6.96,0-13.3-1.78-19.01-5.36c-5.72-3.58-10.24-8.62-13.57-15.14c-3.33-6.51-4.99-13.98-4.99-22.43C730.34,555.09,732,547.68,735.33,541.22z M792.35,550.68c-1.99-3.62-4.68-6.41-8.05-8.34c-3.38-1.94-7.01-2.91-10.88-2.91c-3.88,0-7.46,0.94-10.73,2.83c-3.28,1.89-5.94,4.65-7.98,8.27c-2.04,3.63-3.06,7.93-3.06,12.9c0,4.97,1.02,9.32,3.06,13.05c2.03,3.73,4.72,6.58,8.05,8.57c3.33,2,6.88,2.98,10.66,2.98c3.87,0,7.5-0.97,10.88-2.91c3.38-1.93,6.06-4.71,8.05-8.34c1.99-3.63,2.98-7.97,2.98-13.05C795.33,558.66,794.34,554.31,792.35,550.68z"/>
+          <path style="fill:#00AC8D" d="M859.64,524.9c4.72-2.54,10.11-3.8,16.18-3.8c7.05,0,13.44,1.74,19.16,5.21c5.71,3.48,10.23,8.43,13.57,14.84c3.33,6.4,4.99,13.83,4.99,22.28c0,8.45-1.67,15.92-4.99,22.43c-3.33,6.52-7.86,11.56-13.57,15.14c-5.72,3.58-12.1,5.36-19.16,5.36c-6.07,0-11.41-1.24-16.03-3.73c-4.62-2.48-8.37-5.6-11.25-9.38v51.12h-20.87V522.43h20.87v11.93C851.22,530.59,854.92,527.43,859.64,524.9z M889.16,550.53c-2.04-3.62-4.72-6.38-8.05-8.27c-3.33-1.89-6.93-2.83-10.81-2.83c-3.78,0-7.33,0.97-10.66,2.91c-3.33,1.93-6.01,4.75-8.05,8.42c-2.04,3.68-3.06,8-3.06,12.97c0,4.97,1.02,9.3,3.06,12.97c2.03,3.67,4.72,6.49,8.05,8.42c3.33,1.94,6.88,2.91,10.66,2.91c3.87,0,7.47-0.99,10.81-2.98c3.33-1.99,6.01-4.82,8.05-8.49s3.06-8.06,3.06-13.12C892.21,558.46,891.19,554.16,889.16,550.53z"/>
+          <path style="fill:#00AC8D" d="M984.5,525.34c4.87,2.74,8.67,6.76,11.41,12.07c2.73,5.32,4.1,11.71,4.1,19.16v48.45h-20.87v-45.61c0-6.56-1.64-11.6-4.91-15.14c-3.28-3.52-7.75-5.29-13.42-5.29c-5.76,0-10.31,1.76-13.64,5.29c-3.33,3.53-4.99,8.58-4.99,15.14v45.61h-20.87V494.71h20.87v38.01c2.69-3.58,6.26-6.38,10.73-8.42c4.47-2.04,9.44-3.06,14.91-3.06C974.06,521.25,979.63,522.62,984.5,525.34z"/>
+        </svg>
+      </a>
+      <p>Innovative Design Solutions since 2018. A branding studio dedicated to crafting identities, visuals, and experiences that make a lasting impact.</p>
+      <div class="footer-tagline">Innovative Design Solutions</div>
+    </div>
+    <div class="footer-col">
+      <h4>Services</h4>
+      <ul>
+        <li><a href="#">Logo & Branding</a></li>
+        <li><a href="#">Social Media</a></li>
+        <li><a href="#">Motion Graphics</a></li>
+        <li><a href="#">Printing</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Company</h4>
+      <ul>
+        <li><a href="#">About Us</a></li>
+        <li><a href="#">Portfolio</a></li>
+        <li><a href="#">Blog</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Coming Soon</h4>
+      <ul>
+        <li><a href="#">Online Courses</a></li>
+        <li><a href="#">Print Shop</a></li>
+        <li><a href="#">Calligraphy Art</a></li>
+        <li><a href="#">Resources</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <div class="footer-copy">© 2024 PixGraph. All rights reserved. — Innovative Design Solutions</div>
+    <div class="social-links">
+      <!-- Facebook -->
+      <a href="https://www.facebook.com/pixgraphdesign/" target="_blank" title="Facebook">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+      </a>
+      <!-- Instagram -->
+      <a href="https://www.instagram.com/pixgraphdesign" target="_blank" title="Instagram">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+      </a>
+      <!-- YouTube -->
+      <a href="https://www.youtube.com/@pixgraphdesign" target="_blank" title="YouTube">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M23.495 6.205a3.007 3.007 0 0 0-2.088-2.088c-1.87-.501-9.396-.501-9.396-.501s-7.507-.01-9.396.501A3.007 3.007 0 0 0 .527 6.205a31.247 31.247 0 0 0-.522 5.805 31.247 31.247 0 0 0 .522 5.783 3.007 3.007 0 0 0 2.088 2.088c1.868.502 9.396.502 9.396.502s7.506 0 9.396-.502a3.007 3.007 0 0 0 2.088-2.088 31.247 31.247 0 0 0 .5-5.783 31.247 31.247 0 0 0-.5-5.805zM9.609 15.601V8.408l6.264 3.602z"/></svg>
+      </a>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // Custom cursor
+  const cursor=document.getElementById('cursor'), ring=document.getElementById('cursorRing');
+  let mx=0,my=0,rx=0,ry=0;
+  document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;});
+  (function tick(){
+    if(cursor){cursor.style.left=mx+'px';cursor.style.top=my+'px';rx+=(mx-rx)*.12;ry+=(my-ry)*.12;ring.style.left=rx+'px';ring.style.top=ry+'px';}
+    requestAnimationFrame(tick);
+  })();
+
+  // Scroll reveal
+  const obs=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible');});},{threshold:.1});
+  document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+
+  // Nav shadow
+  const nav=document.getElementById('mainNav');
+  window.addEventListener('scroll',()=>nav.classList.toggle('scrolled',window.scrollY>40));
+
+  // Smooth scroll
+  document.querySelectorAll('a[href^="#"]').forEach(a=>a.addEventListener('click',e=>{
+    const t=document.querySelector(a.getAttribute('href'));
+    if(t){e.preventDefault();t.scrollIntoView({behavior:'smooth'});}
+  }));
+</script>
+</body>
+</html>
